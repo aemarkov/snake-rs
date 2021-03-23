@@ -1,11 +1,12 @@
 use wasm_bindgen::prelude::*;
+use wasm_logger;
+use log;
+
+mod game;
 
 #[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
-}
-
-#[wasm_bindgen]
-pub fn greet(name: &str) {
-    alert(&format!("Hello, {}!", name));
+pub fn main()
+{
+    wasm_logger::init(wasm_logger::Config::default());
+    log::info!("Rust initialized");
 }
