@@ -3,6 +3,8 @@ use wasm_logger;
 use log;
 
 mod game;
+mod draw;
+mod field;
 
 #[wasm_bindgen]
 pub fn main()
