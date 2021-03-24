@@ -2,7 +2,8 @@ use log;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlCanvasElement, CanvasRenderingContext2d};
 
-use crate::field::{CellType, Field, Coord};
+use crate::coord::Coord;
+use crate::field::{CellType, Field};
 
 
 /// Drawing context to store temporal variables
@@ -81,7 +82,7 @@ impl Draw {
     }
 
     fn draw_cell(&self, ctx: &DrawingCtx, row: i32, col: i32) {
-        match Draw::get_cell_style(ctx.field[Coord::new(row, col)].cell_type) {
+        match Draw::get_cell_style(ctx.field[Coord::new(row, col)]) {
             None => return,
             Some(style) => {
                 self.ctx.set_fill_style(&style.into());

@@ -2,13 +2,11 @@ use std::cell;
 
 use wasm_bindgen::prelude::*;
 use log;
-use crate::draw::*;
-use crate::field::*;
+use crate::coord::Direction;
+use crate::draw::Draw;
+use crate::field::Field;
+use crate::snake::Snake;
 
-struct Snake {
-    head: Coord,
-    tail: Coord,
-}
 
 /// Main game context
 #[wasm_bindgen]
@@ -18,6 +16,16 @@ pub struct Game {
     snake: Snake,
 }
 
+fn get_direction(e: web_sys::KeyboardEvent) -> Option<Direction> {
+    match e.key().as_str() {
+        "ArrowUp" => Some(Direction::Up),
+        "ArrowDown" => Some(Direction::Down),
+        "ArrowLeft" => Some(Direction::Left),
+        "ArrowRight" => Some(Direction::Right),
+        _ => None,
+    }
+}
+
 #[wasm_bindgen]
 impl Game {
     pub fn new() -> Game {
@@ -25,66 +33,32 @@ impl Game {
         let mut game = Game {
             field: Field::new(10, 10),
             draw: Draw::new("canvas_game"),
-            snake: Snake {
-                tail: Coord::new(0, 0),
-                head: Coord::new(1, 0),
-            }
+            snake: Snake::new()
         };
 
-        // TODO: Better snake initialization
-        game.field[Coord::new(0, 0)] = Cell {
-            cell_type: CellType::Snake,
-            direction: Direction::Right
-        };
-        game.field[Coord::new(1, 0)] = Cell {
-            cell_type: CellType::Snake,
-            direction: Direction::Right
-        };
+        game.snake.increase(&mut game.field);
+        game.snake.increase(&mut game.field);
+        game.snake.add_to_field(&mut game.field);
         game.draw.draw(&game.field);
 
         return game;
     }
 
     // Key is pressed. External event from JS
-    pub fn key_down(&self, e: web_sys::KeyboardEvent) {
-        log::info!("key pressed");
+    pub fn key_down(&mut self, e: web_sys::KeyboardEvent) {
+        match get_direction(e) {
+            Some(direction) => {
+                self.snake.rotate(direction);
+                self.snake.shift(&mut self.field);
+                self.draw.draw(&self.field);
+            },
+            _ => return
+        }
     }
 
     // Game tick. External event from JS
     pub fn update(&mut self) {
-        if self.shift_snake().is_none() {
-            log::info!("killed")
-        }
-        self.draw.draw(&self.field);
-    }
-
-    fn shift_snake(&mut self) -> Option<()>{
-        log::debug!("Shifted");
-        let mut coord = self.snake.tail;
-        let mut cell = self.field[coord];
-        let empty_cell = Cell {
-            cell_type: CellType::Empty,
-            direction: Direction::Unknow
-        };
-
-        let next_head = self.field.shift_coord(self.snake.head)?;
-        let next_tail = self.field.shift_coord(self.snake.tail)?;
-
-        log::debug!("coord: {:?}, next_head {:?}", coord, next_head);
-
-        while coord != next_head {
-            log::debug!("Coord: {:?}", coord);
-            let next_coord = self.field.shift_coord(coord)?;
-            let next_cell = self.field[next_coord];
-            self.field[coord] = empty_cell;
-            self.field[next_coord] = cell;
-            coord = next_coord;
-            cell = next_cell;
-        }
-
-        self.snake.head = next_head;
-        self.snake.tail = next_tail;
-
-        Some(())
+        // self.snake.shift(&mut self.field);
+        // self.draw.draw(&self.field);
     }
 }

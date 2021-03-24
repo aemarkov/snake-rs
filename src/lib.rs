@@ -5,6 +5,8 @@ use log;
 mod game;
 mod draw;
 mod field;
+mod snake;
+mod coord;
 
 #[wasm_bindgen]
 pub fn main()
