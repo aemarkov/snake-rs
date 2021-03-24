@@ -25,7 +25,7 @@ impl Snake {
             if field.check_bounds(cell.coord).is_none() {
                 panic!("Snake initial position is outside the field");
             }
-            field[cell.coord] = CellType::Snake;
+            field[cell.coord] = CellType::Head;
         }
     }
 
@@ -34,7 +34,7 @@ impl Snake {
     pub fn shift(&mut self, field: &mut Field) -> Option<()> {
         // TODO: Don't check at runtime, make invariant
         let tail_coord = self.data.first()
-            .expect("Snake has zero size")
+            .expect("Snake has zero length")
             .coord;
 
         let new_head_coord = self.move_head_coord(field)?;
@@ -42,12 +42,13 @@ impl Snake {
         // move body
         for i in 0..(self.data.len()-1) {
             self.data[i].coord = self.data[i+1].coord;
+            field[self.data[i].coord] = CellType::Snake;
         }
 
         // move head to the direction
         // array bounds already checked, safe to unwrap
         self.data.last_mut().unwrap().coord = new_head_coord;
-        field[new_head_coord] = CellType::Snake;
+        field[new_head_coord] = CellType::Head;
 
         // clean the last cell
         field[tail_coord] = CellType::Empty;
@@ -61,10 +62,22 @@ impl Snake {
 
     /// Increase snake length one cell ahead
     pub fn increase(&mut self, field: &mut Field) -> Option<()> {
+        let head = self.data.last()
+            .expect("Snake has zero length")
+            .coord;
         let new_coord = self.move_head_coord(field)?;
         self.data.push(SnakeCell{coord: new_coord});
-        field[new_coord] = CellType::Snake;
+        field[head] = CellType::Snake;
+        field[new_coord] = CellType::Head;
         Some(())
+    }
+
+    pub fn check_food(&self, field: &Field) -> Option<bool> {
+        let head_coord = self.data.last()
+            .expect("Snake has zero length")
+            .coord;
+        let new_coord = self.move_head_coord(&field)?;
+        Some(field[new_coord] == CellType::Food)
     }
 
     fn move_head_coord(&self, field: &Field) -> Option<Coord> {

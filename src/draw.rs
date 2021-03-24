@@ -97,7 +97,8 @@ impl Draw {
         match cell_type {
             CellType::Empty => None,
             CellType::Food => Some("#f00"),
-            CellType::Snake => Some("#000")
+            CellType::Snake => Some("#000"),
+            CellType::Head => Some("#555"),
         }
     }
 

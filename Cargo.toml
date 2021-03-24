@@ -17,7 +17,7 @@ wasm-bindgen="0.2"
 console_error_panic_hook = { version = "0.1.6", optional = true }
 log = "0.4.6"
 wasm-logger = "0.2.0"
-
+js-sys="0.3"
 [dependencies.web-sys]
 version="0.3"
 features = ["console", "Window", "Document", "Element", "Node",

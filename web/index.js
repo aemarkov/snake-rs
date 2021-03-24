@@ -4,7 +4,7 @@ function main(rust) {
     let game = rust.Game.new();
 
     document.addEventListener('keydown', (e) =>  game.key_down(e));
-    setInterval(() => game.update(), 1000)
+    setInterval(() => game.update(), 30)
 }
 
 const rust = import('../pkg');

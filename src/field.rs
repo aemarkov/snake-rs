@@ -2,8 +2,8 @@ use std::usize;
 use crate::coord::Coord;
 
 /// Type of the field cell
-#[derive(Debug, Copy, Clone)]
-pub enum CellType { Empty, Snake, Food }
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum CellType { Empty, Snake, Head, Food }
 
 /// Game field
 pub struct Field {
@@ -35,6 +35,7 @@ impl Field {
     fn _check_collision(&self, coord: Coord) -> Option<Coord> {
         match self[coord] {
             CellType::Snake => None,
+            CellType::Head => None,
             _ => Some(coord)
         }
     }
