@@ -1,0 +1,27 @@
+html,body {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+
+    background-color: #cecece;
+}
+
+h1 {
+    text-align: center;
+    margin: 0;
+}
+
+#content
+{
+    background-color: #fff;
+    width: 514px;
+    margin: 0 auto;
+}
+
+#canvas_game
+{
+    box-sizing: border-box;
+    border: 1px solid;
+}
+
