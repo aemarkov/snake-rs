@@ -7,7 +7,13 @@ use crate::coord::{Coord, Direction};
 use crate::draw::Draw;
 use crate::field::{Field, CellType};
 use crate::snake::Snake;
+use web_sys::console::debug;
+use log::logger;
 
+#[wasm_bindgen]
+extern "C" {
+    fn alert(s: &str);
+}
 
 /// Main game context
 #[wasm_bindgen]
@@ -15,8 +21,10 @@ pub struct Game {
     draw: Draw,
     field: Field,
     snake: Snake,
-    delay: i32,
-    cnt: i32
+    delay: f32,
+    cnt: i32,
+    speed_up: f32,
+    is_died: bool
 }
 
 fn get_direction(e: web_sys::KeyboardEvent) -> Option<Direction> {
@@ -37,8 +45,10 @@ impl Game {
             field: Field::new(30, 30),
             draw: Draw::new("canvas_game"),
             snake: Snake::new(),
-            delay: 15,
-            cnt: 0
+            delay: 15.0,
+            speed_up: 0.5,
+            cnt: 0,
+            is_died: false
         };
 
         game.snake.add_to_field(&mut game.field);
@@ -68,7 +78,7 @@ impl Game {
 
     fn skip(&mut self) -> bool {
         self.cnt += 1;
-        if self.cnt >= self.delay {
+        if !self.is_died && self.cnt >= self.delay as i32 {
             self.cnt = 0;
             return false;
         }
@@ -77,7 +87,9 @@ impl Game {
 
     fn _update(&mut self) {
         if self._step().is_none() {
+            self.is_died = true;
             log::info!("Died");
+            alert("You died!");
         }
         self.draw.draw(&self.field);
     }
@@ -95,14 +107,14 @@ impl Game {
     }
 
     fn speed_up(&mut self) {
-        self.delay -= 1;
-        if self.delay < 0 { self. delay = 0;  }
+        self.delay -= self.speed_up;
+        if self.delay < 0.0 { self. delay = 0.0;  }
     }
 
     fn place_food(&mut self) {
         let mut coord = self.get_random_coord();
         //log::debug!("{:?}", coord);
-        while self.field[coord] == CellType::Snake {
+        while self.field[coord] == CellType::Snake || self.field[coord] == CellType::Head {
             coord = self.get_random_coord();
             //log::debug!("{:?}", coord);
         }

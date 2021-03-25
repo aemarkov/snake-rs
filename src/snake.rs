@@ -32,11 +32,7 @@ impl Snake {
     // FIXME: it's really bad idea to pass Field to the Snake
     /// Shift snake one cell ahead
     pub fn shift(&mut self, field: &mut Field) -> Option<()> {
-        // TODO: Don't check at runtime, make invariant
-        let tail_coord = self.data.first()
-            .expect("Snake has zero length")
-            .coord;
-
+        let tail_coord = self.tail().coord;
         let new_head_coord = self.move_head_coord(field)?;
 
         // move body
@@ -46,8 +42,7 @@ impl Snake {
         }
 
         // move head to the direction
-        // array bounds already checked, safe to unwrap
-        self.data.last_mut().unwrap().coord = new_head_coord;
+        self.head_mut().coord = new_head_coord;
         field[new_head_coord] = CellType::Head;
 
         // clean the last cell
@@ -62,29 +57,40 @@ impl Snake {
 
     /// Increase snake length one cell ahead
     pub fn increase(&mut self, field: &mut Field) -> Option<()> {
-        let head = self.data.last()
-            .expect("Snake has zero length")
-            .coord;
+        let head_coord = self.head().coord;
         let new_coord = self.move_head_coord(field)?;
         self.data.push(SnakeCell{coord: new_coord});
-        field[head] = CellType::Snake;
+        field[head_coord] = CellType::Snake;
         field[new_coord] = CellType::Head;
         Some(())
     }
 
     pub fn check_food(&self, field: &Field) -> Option<bool> {
-        let head_coord = self.data.last()
-            .expect("Snake has zero length")
-            .coord;
         let new_coord = self.move_head_coord(&field)?;
         Some(field[new_coord] == CellType::Food)
     }
 
     fn move_head_coord(&self, field: &Field) -> Option<Coord> {
-        // TODO: Don't check at runtime, make invariant
-        let head = self.data.last()
-            .expect("Snake has zero length");
+        let head = self.head();
         let new_coord = head.coord.shift(self.direction);
         field.check_collision(new_coord)
+    }
+
+    fn head(&self) -> &SnakeCell {
+        // TODO: Don't check at runtime, make invariant
+        self.data.last()
+            .expect("Snake has zero length")
+    }
+
+    fn head_mut(&mut self) ->&mut SnakeCell {
+        // TODO: Don't check at runtime, make invariant
+        self.data.last_mut()
+            .expect("Snake has zero length")
+    }
+
+    fn tail(&self) -> &SnakeCell {
+        // TODO: Don't check at runtime, make invariant
+        self.data.first()
+            .expect("Snake has zero length")
     }
 }

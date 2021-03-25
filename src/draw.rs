@@ -69,8 +69,8 @@ impl Draw {
         self.ctx.set_stroke_style(&"#ccc".into());
         self.ctx.fill_rect(0.0, 0.0, self.width, self.height);
 
-        self.draw_field(&ctx);
         self.draw_grid(&ctx);
+        self.draw_field(&ctx);
     }
 
     fn draw_field(&self, ctx: &DrawingCtx) {
@@ -103,6 +103,7 @@ impl Draw {
     }
 
     fn draw_grid(&self, ctx: &DrawingCtx) {
+        self.ctx.begin_path();
         for row in 0..ctx.field.width {
             self.ctx.move_to((row as f64) * ctx.cell_width, 0.0);
             self.ctx.line_to((row as f64) * ctx.cell_width, self.height);
